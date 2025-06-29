@@ -1,4 +1,4 @@
-2:44
+3:00
 
 Just one time
 e2b template build --name vibe-nextjs-kc-test-2 --cmd "/compile_page.sh"
