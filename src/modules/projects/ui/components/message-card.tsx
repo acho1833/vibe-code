@@ -1,4 +1,7 @@
+'use client';
 import { Fragment, MessageRole, MessageType } from '@/generated/prisma';
+import UserMessage from './user-message';
+import AssistantMessage from './assistant-message';
 
 type Props = {
     content: string;
@@ -20,13 +23,11 @@ const MessageCard = ({
     type,
 }: Props) => {
     if (role === 'ASSISTANT') {
-        return <p>ASSISTANT</p>;
+        return <AssistantMessage content={content} fragment={fragment}  createdAt={createdAt}  isActive={isActive}  onFragmentClick={onFragmentClick}  type={type} />;
     }
 
     return (
-        <p>
-            USER
-        </p>
+        <UserMessage content={content}/>
     );
 };
 

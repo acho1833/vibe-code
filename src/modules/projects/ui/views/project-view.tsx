@@ -1,5 +1,4 @@
 'use client';
-
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Suspense } from 'react';
 import MessagesContainer from '../components/messages-container';
@@ -20,7 +19,7 @@ const ProjectView = ({ projectId }: Props) => {
                 <ResizablePanel defaultSize={35} minSize={20} className="flex flex-col min-h-0">
                     <Suspense fallback={<div>Loading project details...</div>}>
                         <MessagesContainer projectId={projectId} />
-                    </Suspense>
+                     </Suspense>
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={65} minSize={50} className="flex flex-col min-h-0">
