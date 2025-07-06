@@ -8,7 +8,7 @@ type Props = {
     role: MessageRole;
     fragment: Fragment | null;
     createdAt: Date;
-    isActive: boolean;
+    isActiveFragment: boolean;
     onFragmentClick: (fragment: Fragment) => void;
     type: MessageType;
 };
@@ -18,12 +18,12 @@ const MessageCard = ({
     role,
     fragment,
     createdAt,
-    isActive,
+    isActiveFragment,
     onFragmentClick,
     type,
 }: Props) => {
     if (role === 'ASSISTANT') {
-        return <AssistantMessage content={content} fragment={fragment}  createdAt={createdAt}  isActive={isActive}  onFragmentClick={onFragmentClick}  type={type} />;
+        return <AssistantMessage content={content} fragment={fragment}  createdAt={createdAt}  isActive={isActiveFragment}  onFragmentClick={onFragmentClick}  type={type} />;
     }
 
     return (
