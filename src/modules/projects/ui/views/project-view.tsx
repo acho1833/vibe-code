@@ -5,6 +5,11 @@ import MessagesContainer from '../components/messages-container';
 import { Fragment } from '@/generated/prisma';
 import ProjectHeader from '../components/project-header';
 import FragmentWeb from '../components/fragment-web';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CodeIcon, CrownIcon, EyeIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import CodeView from '@/components/code-view';
 
 type Props = {
     projectId: string;
@@ -12,6 +17,7 @@ type Props = {
 
 const ProjectView = ({ projectId }: Props) => {
     const [activeFragment, setActiveFragment] = useState<Fragment | null>(null);
+    const [tabState, setTabState] = useState<'code' | 'preview'>('preview');
 
     return (
         <div className="h-screen">
@@ -30,7 +36,44 @@ const ProjectView = ({ projectId }: Props) => {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={65} minSize={50} className="flex flex-col min-h-0">
-                    {!!activeFragment && <FragmentWeb data={activeFragment} />}
+                    <Tabs
+                        className="h-full gap-y-0"
+                        defaultValue="preview"
+                        value={tabState}
+                        onValueChange={(value) => setTabState(value as 'code' | 'preview')}
+                    >
+                        <div className="w-full flex items-center p-2 border-b gap-x-2">
+                            <TabsList className="h-8 p-0 border rounded-md">
+                                <TabsTrigger
+                                    value="preview"
+                                    className="rounded-md"
+                                    onClick={() => setTabState('preview')}
+                                >
+                                    <EyeIcon /> <span>Demo</span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="code"
+                                    className="rounded-md"
+                                    onClick={() => setTabState('code')}
+                                >
+                                    <CodeIcon /> <span>Code</span>
+                                </TabsTrigger>
+                            </TabsList>
+                            <div className="ml-auto flex items-center gap-x-2">
+                                <Button asChild size="sm" variant="default">
+                                    <Link href="/pricing">
+                                        <CrownIcon /> Upgrade
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
+                        <TabsContent value="preview">
+                            {!!activeFragment && <FragmentWeb data={activeFragment} />}
+                        </TabsContent>
+                        <TabsContent value="code">
+                            <CodeView lang='ts' code='const a = "Hello world";' />
+                        </TabsContent>
+                    </Tabs>
                 </ResizablePanel>
             </ResizablePanelGroup>
         </div>
