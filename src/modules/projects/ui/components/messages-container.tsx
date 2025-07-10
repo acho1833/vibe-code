@@ -16,17 +16,27 @@ type Props = {
 const MessagesContainer = ({ projectId, activeFragment, setActiveFragment }: Props) => {
     const bottomRef = useRef<HTMLDivElement>(null);
     const trpc = useTRPC();
-    const { data: messages } = useSuspenseQuery(trpc.messages.getMany.queryOptions({ projectId }, {
-        refetchInterval: 5000
-    }));
+    const { data: messages } = useSuspenseQuery(
+        trpc.messages.getMany.queryOptions(
+            { projectId },
+            {
+                refetchInterval: 5000,
+            }
+        )
+    );
+    const lastAssistantMessageIdRef = useRef<string | null>(null);
 
-    // useEffect(() => {
-    //     const lastAssignedMessageWithFragment = messages.findLast((message) => message.role === 'ASSISTANT' && !!message.fragment);
+    useEffect(() => {
+        const lastAssignedMessage = messages.findLast((message) => message.role === 'ASSISTANT');
 
-    //     if (lastAssignedMessageWithFragment) {
-    //         setActiveFragment(lastAssignedMessageWithFragment.fragment);
-    //     }
-    // }, [messages, setActiveFragment]);
+        if (
+            lastAssignedMessage?.fragment &&
+            lastAssignedMessage.fragment.id !== lastAssistantMessageIdRef.current
+        ) {
+            setActiveFragment(lastAssignedMessage.fragment);
+            lastAssistantMessageIdRef.current = lastAssignedMessage.fragment.id;
+        }
+    }, [messages, setActiveFragment]);
 
     useEffect(() => {
         if (bottomRef.current) {
