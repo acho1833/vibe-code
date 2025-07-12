@@ -1,15 +1,19 @@
 import { inngest } from "@/inngest/client";
 import { prisma } from "@/lib/db";
-import { baseProcedure, createTRPCRouter } from "@/trpc/init";
+import { protectedProcedure, createTRPCRouter } from "@/trpc/init";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const messageRouter = createTRPCRouter({
-    getMany: baseProcedure.input(z.object({
+    getMany: protectedProcedure.input(z.object({
         projectId: z.string().min(1, "Project ID cannot be empty"),
-    })).query(async ({ input }) => {
+    })).query(async ({ input, ctx }) => {
         const messages = await prisma.message.findMany({
             where: {
                 projectId: input.projectId,
+                project: {
+                    userId: ctx.auth.userId,
+                }
             },
             orderBy: {
                 updatedAt: 'asc',
@@ -20,13 +24,27 @@ export const messageRouter = createTRPCRouter({
         });
         return messages;
     }),
-    create: baseProcedure.input(z.object({
+    create: protectedProcedure.input(z.object({
         value: z.string().min(1, "Value cannot be empty").max(10000, "Value cannot exceed 10,000 characters"),
         projectId: z.string().min(1, "Project ID cannot be empty"),
-    })).mutation(async ({ input }) => {
+    })).mutation(async ({ input, ctx }) => {
+        const existingProject = await prisma.project.findUnique({
+            where: {
+                id: input.projectId,
+                userId: ctx.auth.userId,
+            },
+        });
+
+        if (!existingProject) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: `Project with ID ${input.projectId} not found`,
+            });
+        }
+
         const createdMessage = await prisma.message.create({
             data: {
-                projectId: input.projectId,
+                projectId: existingProject.id,
                 content: input.value,
                 role: "USER",
                 type: "RESULT",
@@ -37,7 +55,7 @@ export const messageRouter = createTRPCRouter({
             name: 'code-agent/run',
             data: {
                 value: input.value,
-                projectId: input.projectId,
+                projectId: existingProject.id,
             },
         });
 

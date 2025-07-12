@@ -1,19 +1,19 @@
 'use client';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
-import { Form, FormField } from '@/components/ui/form';
-import TextareaAutoResize from 'react-textarea-autosize';
 import { Button } from '@/components/ui/button';
-import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
+import { Form, FormField } from '@/components/ui/form';
+import { cn } from '@/lib/utils';
 import { useTRPC } from '@/trpc/client';
+import { useClerk } from '@clerk/nextjs';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import TextareaAutoResize from 'react-textarea-autosize';
+import { toast } from 'sonner';
+import { z } from 'zod';
 import { PROJECT_TEMPLATES } from '../../constants';
-import { Content } from 'next/font/google';
 
 const formSchema = z.object({
     value: z
@@ -25,6 +25,7 @@ const formSchema = z.object({
 const ProjectForm = () => {
     const router = useRouter();
     const trpc = useTRPC();
+    const clerk = useClerk();
     const queryClient = useQueryClient();
     const createProject = useMutation(
         trpc.projects.create.mutationOptions({
@@ -33,7 +34,10 @@ const ProjectForm = () => {
                 router.push(`/projects/${data.id}`);
             },
             onError: (error) => {
-                toast.error(error.message);
+                if (error.data?.code === 'UNAUTHORIZED') {
+                    clerk.openSignIn();
+                    return;
+                }
             },
         })
     );
@@ -51,9 +55,13 @@ const ProjectForm = () => {
         });
     };
 
-    const onSelect = (content:string) => {
-        form.setValue('value', content, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-    }
+    const onSelect = (content: string) => {
+        form.setValue('value', content, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+        });
+    };
 
     const isPending = createProject.isPending;
     const isButtonDisabled = isPending || !form.formState.isValid;
@@ -119,7 +127,9 @@ const ProjectForm = () => {
                             variant="outline"
                             size="sm"
                             className="bg-white dark:bg-sidebar"
-                            onClick={() => {onSelect(template.prompt)}}
+                            onClick={() => {
+                                onSelect(template.prompt);
+                            }}
                         >
                             {template.emoji} {template.title}
                         </Button>
