@@ -8,8 +8,10 @@ import TextareaAutoResize from 'react-textarea-autosize';
 import { Button } from '@/components/ui/button';
 import { ArrowUpIcon, Loader2Icon } from 'lucide-react';
 import { useTRPC } from '@/trpc/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import Usage from './usage';
+import { useRouter } from 'next/navigation';
 
 type Props = {
     projectId: string;
@@ -23,21 +25,28 @@ const formSchema = z.object({
 });
 
 const MessageForm = ({ projectId }: Props) => {
+    const router = useRouter()
     const trpc = useTRPC();
     const queryClient = useQueryClient();
+    const {data: usage} = useQuery(trpc.usage.status.queryOptions());
     const createMessage = useMutation(
         trpc.messages.create.mutationOptions({
             onSuccess: (data) => {
                 form.reset();
                 queryClient.invalidateQueries(trpc.messages.getMany.queryOptions({ projectId }));
+                queryClient.invalidateQueries(trpc.usage.status.queryOptions());
             },
             onError: (error) => {
                 toast.error(error.message);
+
+                if (error.data?.code === 'TOO_MANY_REQUESTS') { 
+                    router.push('/pricing');
+                }                 
             },
         })
     );
     const [isFocused, setIsFocused] = useState(false);
-    const showUsage = false;
+    const showUsage = !!usage;
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -57,6 +66,10 @@ const MessageForm = ({ projectId }: Props) => {
 
     return (
         <Form {...form}>
+            {showUsage && (
+                <Usage points={usage.remainingPoints} msBeforeNext={usage.msBeforeNext} />
+            )}
+
             <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className={cn(
