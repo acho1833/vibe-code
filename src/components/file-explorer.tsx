@@ -1,21 +1,19 @@
-import { Fragment, useCallback, useMemo, useState } from 'react';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './ui/resizable';
-import Hint from './hint';
-import { Button } from './ui/button';
-import { CopyCheckIcon, CopyIcon } from 'lucide-react';
-import CodeView from './code-view';
 import { convertFilesToTreeItems } from '@/lib/utils';
+import { CopyCheckIcon, CopyIcon } from 'lucide-react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
+import CodeView from './code-view';
+import Hint from './hint';
 import TreeView from './tree-view';
 import {
     Breadcrumb,
     BreadcrumbEllipsis,
     BreadcrumbItem,
-    BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
-    BreadcrumbSeparator,
+    BreadcrumbSeparator
 } from './ui/breadcrumb';
-import path from 'path';
+import { Button } from './ui/button';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from './ui/resizable';
 
 type FileCollection = { [path: string]: string };
 

@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import TextareaAutoResize from 'react-textarea-autosize';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import { PROJECT_TEMPLATES } from '../../constants';
 

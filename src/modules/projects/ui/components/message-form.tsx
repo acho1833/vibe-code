@@ -31,7 +31,7 @@ const MessageForm = ({ projectId }: Props) => {
     const {data: usage} = useQuery(trpc.usage.status.queryOptions());
     const createMessage = useMutation(
         trpc.messages.create.mutationOptions({
-            onSuccess: (data) => {
+            onSuccess: () => {
                 form.reset();
                 queryClient.invalidateQueries(trpc.messages.getMany.queryOptions({ projectId }));
                 queryClient.invalidateQueries(trpc.usage.status.queryOptions());

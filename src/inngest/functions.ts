@@ -83,7 +83,7 @@ export const codeAgentFunction = inngest.createFunction(
                                 });
 
                                 return result.stdout;
-                            } catch (e) {
+                            } catch {
                                 console.error(`Error running command: ${command}\nstdout: ${buffers.stdout}\nstderr: ${buffers.stderr}`);
                             }
                         });
