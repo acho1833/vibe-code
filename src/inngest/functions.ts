@@ -5,6 +5,7 @@ import { createAgent, createNetwork, createState, createTool, Message, openai, T
 import z from 'zod';
 import { inngest } from "./client";
 import { getSandbox, lastAssistantTextMessageContent } from './utils';
+import { SANDBOX_TIMEOUT } from './types';
 
 type AgentState = {
     summary: string;
@@ -17,6 +18,7 @@ export const codeAgentFunction = inngest.createFunction(
     async ({ event, step }) => {
         const sandboxId = await step.run("get-sandbox-id", async () => {
             const sandbox = await Sandbox.create('vibe-nextjs-kc-test-2');
+            await sandbox.setTimeout(SANDBOX_TIMEOUT);
             return sandbox.sandboxId;
         });
 
@@ -30,7 +32,7 @@ export const codeAgentFunction = inngest.createFunction(
                 orderBy: {
                     createdAt: 'desc',
                 },
-                take: 10,
+                take: 5,
             });
 
             for (const message of messages) {
@@ -41,7 +43,7 @@ export const codeAgentFunction = inngest.createFunction(
                 });
             }
 
-            return formattedMessages;
+            return formattedMessages.reverse();
         });
 
         const state = createState<AgentState>({
