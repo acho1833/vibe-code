@@ -26,6 +26,8 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+
+    if(1 === 1) return null;
     return (
         <ClerkProvider appearance={{
             variables: {
